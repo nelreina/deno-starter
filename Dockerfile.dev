@@ -1,0 +1,15 @@
+# Use the official Deno image as the base image
+FROM denoland/deno:2.0.0
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the required files into the container
+# You may want to change this depending on your project structure
+COPY . .
+
+# Specify the start command
+# Change "your_start_file.ts" to the entry file of your application
+CMD ["deno",  "run", "dev"]
+
+
