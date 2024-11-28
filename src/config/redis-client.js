@@ -30,7 +30,6 @@ client.on('error', (error) => {
   console.error(error);
 });
 
-if (!client.isOpen) await client.connect();
 
 export const subscribe2RedisChannel = async (channel, callback) => {
   if (!pubsub.isOpen) await pubsub.connect();
@@ -58,6 +57,16 @@ export const publish2RedisChannel = async (channel, payload) => {
 
   return await pubsub.publish(channel, message);
 };
+
+export const setHashValue = async (key, object) => {
+  if (!client.isOpen) await client.connect();
+  const values = Object.entries(object).reduce((acc, [key, value]) => {
+    acc.push(key);
+    acc.push(value);
+    return acc;
+  }, []);
+  return await client.hSet(key, values);
+}
 
 export const getAllSetHashValues = async (key) => {
   if (!client.isOpen) await client.connect();

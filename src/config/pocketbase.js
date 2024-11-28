@@ -1,19 +1,16 @@
 import PocketBase from "npm:pocketbase";
 
-const POCKETBASE = Deno.env.get("POCKETBASE_URL");
+const POCKETBASE = Deno.env.get("POCKETBASE");
+const POCKETBASE_ADMIN_TOKEN = Deno.env.get("POCKETBASE_ADMIN_TOKEN");
 const POCKETBASE_ADMIN = Deno.env.get("POCKETBASE_ADMIN");
-const POCKETBASE_ADMIN_PASSWORD = Deno.env.get("POCKETBASE_ADMIN_PASSWORD");
 
 console.log("LOG:  ~ POCKETBASE URL:", POCKETBASE);
 
 export const pbAdmin = new PocketBase(POCKETBASE);
 
-export const connectToPB = async () => {
+export const connectToPocketbase = () => {
   try {
-    await pbAdmin.admins.authWithPassword(
-      POCKETBASE_ADMIN,
-      POCKETBASE_ADMIN_PASSWORD
-    );
+    pbAdmin.authStore.save(POCKETBASE_ADMIN_TOKEN, null);
     console.info(
       "✅ PocketBase admin authenticated for admin user: " + POCKETBASE_ADMIN
     );
@@ -25,5 +22,6 @@ export const connectToPB = async () => {
     throw new Error("PocketBase admin authentication failed");
   }
 };
+
 
 
