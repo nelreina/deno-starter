@@ -8,6 +8,7 @@ WORKDIR /app
 # You may want to change this depending on your project structure
 COPY . .
 
+RUN deno cache ./src/main.js
 # Specify the start command
 # Change "your_start_file.ts" to the entry file of your application
 CMD ["deno",  "run", "dev"]

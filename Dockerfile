@@ -10,6 +10,7 @@ COPY . .
 
 # Specify the start command
 # Change "your_start_file.ts" to the entry file of your application
+RUN deno cache ./src/main.js
 RUN deno run build
 # CMD ["deno",  "run", "dev"]
 
