@@ -16,6 +16,8 @@ RUN deno run build
 
 
 FROM debian:bullseye-slim
+RUN apt-get install tzdata
+ENV TZ America/Curacao
 RUN apt-get update && apt-get install -y curl
 EXPOSE 8000
 WORKDIR /app
