@@ -1,18 +1,17 @@
-import 'https://deno.land/x/logging@v2.0.0/mod.ts';
+import "https://deno.land/x/logging@v2.0.0/mod.ts";
 
-import { createClient } from 'npm:redis';
-import { newEventStreamService as EventStream } from 'npm:@nelreina/redis-stream-consumer';
-import { addToEventLog } from "npm:@nelreina/redis-stream-consumer";
+import { createClient } from "npm:redis";
+import { newEventStreamService as EventStream } from "npm:@nelreina/redis-stream-consumer";
 
 let url;
-const REDIS_HOST = Deno.env.get('REDIS_HOST');
-const REDIS_PORT = Deno.env.get('REDIS_PORT') || 6379;
-const REDIS_USER = Deno.env.get('REDIS_USER');
-const REDIS_PW = Deno.env.get('REDIS_PW');
-const SERVICE = Deno.env.get('SERVICE_NAME') || 'no-name-provided';
+const REDIS_HOST = Deno.env.get("REDIS_HOST");
+const REDIS_PORT = Deno.env.get("REDIS_PORT") || 6379;
+const REDIS_USER = Deno.env.get("REDIS_USER");
+const REDIS_PW = Deno.env.get("REDIS_PW");
+const SERVICE = Deno.env.get("SERVICE_NAME") || "no-name-provided";
 
 if (REDIS_HOST) {
-  url = 'redis://';
+  url = "redis://";
   if (REDIS_USER && REDIS_PW) {
     url += `${REDIS_USER}:${REDIS_PW}@`;
   }
@@ -22,15 +21,14 @@ if (REDIS_HOST) {
 export const client = createClient({ url, name: SERVICE });
 export const pubsub = client.duplicate();
 
-client.on('connect', () => {
+client.on("connect", () => {
   console.log(`✅ Connected to redis: ${url}`);
 });
 
-client.on('error', (error) => {
+client.on("error", (error) => {
   console.error(`❌ Error connecting to redis: ${url}`);
   console.error(error);
 });
-
 
 export const subscribe2RedisChannel = async (channel, callback) => {
   if (!pubsub.isOpen) await pubsub.connect();
@@ -67,7 +65,7 @@ export const setHashValue = async (key, object) => {
     return acc;
   }, []);
   return await client.hSet(key, values);
-}
+};
 
 export const getAllSetHashValues = async (key) => {
   if (!client.isOpen) await client.connect();
@@ -91,7 +89,6 @@ export const connectToEventStream = async (
   console.log(message);
   // return eventStream;
 };
-
 export const addToStream = async (streamName, event, aggregateId, payload) => {
   const streamData = {
     streamKeyName: streamName,
@@ -102,5 +99,54 @@ export const addToStream = async (streamName, event, aggregateId, payload) => {
   };
   if (!client.isOpen) await client.connect();
   await addToEventLog(client, streamData);
+};
+
+const getLocalTimeStamp = () => {
+  const options = {
+    timeZone: "America/Curacao",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    fractionalSecondDigits: 3,
+    hour12: false,
+  };
+
+  const date = new Date();
+  const timestamp = date
+    .toLocaleString("sv-SE", options)
+    .replace(" ", "T")
+    .replace(",", "")
+    .replace(/(\d{2}:\d{2}:\d{2})/, "$1.");
+  return timestamp;
+};
+
+const addToEventLog = async (
+  conn,
+  { streamKeyName, event, aggregateId, payload, serviceName = "" }
+) => {
+  if (!streamKeyName || (streamKeyName && streamKeyName.length === 0)) {
+    throw Error(
+      "ERROR: Not a valid Event Stream Data!,  'streamKeyName' are required!"
+    );
+  }
+  const timestamp = getLocalTimeStamp();
+
+  if (!event || !aggregateId || !timestamp) {
+    throw Error(
+      "ERROR: Not a valid Event Stream Data!,  'event', 'aggregateId' and 'timestamp' are required!"
+    );
+  }
+  // console.info(JSON.stringify({ log: "addToStream", event, aggregateId }));
+  const streamData = {
+    event,
+    aggregateId,
+    timestamp,
+    payload: JSON.stringify(payload || {}),
+    serviceName,
+  };
+  await conn.xAdd(streamKeyName, "*", streamData);
 };
 
