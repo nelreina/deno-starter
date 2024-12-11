@@ -2,6 +2,7 @@ import 'https://deno.land/x/logging@v2.0.0/mod.ts';
 
 import { createClient } from 'npm:redis';
 import { newEventStreamService as EventStream } from 'npm:@nelreina/redis-stream-consumer';
+import { addToEventLog } from "npm:@nelreina/redis-stream-consumer";
 
 let url;
 const REDIS_HOST = Deno.env.get('REDIS_HOST');
@@ -89,5 +90,17 @@ export const connectToEventStream = async (
   const message = await EventStream(client, stream, SERVICE, events, handler);
   console.log(message);
   // return eventStream;
+};
+
+export const addToStream = async (streamName, event, aggregateId, payload) => {
+  const streamData = {
+    streamKeyName: streamName,
+    aggregateId,
+    payload,
+    event,
+    serviceName: SERVICE,
+  };
+  if (!client.isOpen) await client.connect();
+  await addToEventLog(client, streamData);
 };
 
