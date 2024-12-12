@@ -1,6 +1,6 @@
 import PocketBase from "npm:pocketbase";
 
-const POCKETBASE = Deno.env.get("POCKETBASE");
+const POCKETBASE = Deno.env.get("POCKETBASE_URL");
 const POCKETBASE_ADMIN_TOKEN = Deno.env.get("POCKETBASE_ADMIN_TOKEN");
 const POCKETBASE_ADMIN = Deno.env.get("POCKETBASE_ADMIN");
 
