@@ -4,6 +4,7 @@
     "build": "deno compile -A --output ./build/deno-app ./src/main.js"
   },
   "imports": {
-    "@std/assert": "jsr:@std/assert@1"
+    "@std/assert": "jsr:@std/assert@1",
+    "pocketbase": "npm:pocketbase@^0.22.1"
   }
 }

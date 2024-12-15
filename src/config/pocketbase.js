@@ -1,4 +1,4 @@
-import PocketBase from "npm:pocketbase";
+import PocketBase from "pocketbase";
 
 const POCKETBASE = Deno.env.get("POCKETBASE_URL");
 const POCKETBASE_ADMIN_TOKEN = Deno.env.get("POCKETBASE_ADMIN_TOKEN");
@@ -8,20 +8,32 @@ console.log("LOG:  ~ POCKETBASE URL:", POCKETBASE);
 
 export const pbAdmin = new PocketBase(POCKETBASE);
 
-export const connectToPocketbase = () => {
+const checkAuth = async () => {
   try {
-    pbAdmin.authStore.save(POCKETBASE_ADMIN_TOKEN, null);
-    console.info(
-      "✅ PocketBase admin authenticated for admin user: " + POCKETBASE_ADMIN
-    );
-    // schedule.scheduleJob(RESET_SCHEDULE, resetCalculations);
+    // This is a workaround to check if the admin is authenticated
+    await pbAdmin.collection("_superusers").getList(1, 1);
+    return true;
   } catch (error) {
-    console.error(
-      "❗️ PocketBase admin authentication failed:  " + error.message
-    );
-    throw new Error("PocketBase admin authentication failed");
+    return false;
   }
+}
+
+export const connectToPocketbase = async () => {
+  let isAuthenticated = false;
+    pbAdmin.authStore.save(POCKETBASE_ADMIN_TOKEN);
+    isAuthenticated = await checkAuth();
+    if (isAuthenticated) {
+      console.info(
+        "✅ PocketBase admin authenticated for admin user: " + POCKETBASE_ADMIN
+      );
+    } else {
+      console.error(
+        "❗️ PocketBase admin authentication failed:  "
+      );
+    }
+  return isAuthenticated;
 };
+
 
 
 

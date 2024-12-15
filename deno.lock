@@ -64,6 +64,7 @@
     "npm:node-schedule@*": "2.1.1",
     "npm:path-to-regexp@6.2.1": "6.2.1",
     "npm:pm2@*": "5.4.2",
+    "npm:pocketbase@~0.22.1": "0.22.1",
     "npm:postgres@*": "3.4.4",
     "npm:timeago.js@~4.0.2": "4.0.2",
     "npm:ws@^8.17.0": "8.18.0",
@@ -1020,6 +1021,9 @@
         "vizion"
       ]
     },
+    "pocketbase@0.22.1": {
+      "integrity": "sha512-hnzpDcIx5kbkUJXz6IkiTox6R4nb706u4rPSMy2FYCaI2OqBnFxbY0qwWBSqx1ERz/Xi61Uguf17Gb9bWZ8+kw=="
+    },
     "postgres@3.4.4": {
       "integrity": "sha512-IbyN+9KslkqcXa8AO9fxpk97PA4pzewvpi2B3Dwy9u4zpV32QicaEdgmF3eSQUzdRk7ttDHQejNgAEr4XoeH4A=="
     },
@@ -1241,7 +1245,8 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@std/assert@1"
+      "jsr:@std/assert@1",
+      "npm:pocketbase@~0.22.1"
     ]
   }
 }
