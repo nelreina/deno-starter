@@ -2,7 +2,7 @@ import { MailtrapClient } from "npm:mailtrap";
 
 const TOKEN = Deno.env.get("MAILTRAP_TOKEN");
 const EMAIL = Deno.env.get("MAILTRAP_FROM");
-console.log("EMAIL", EMAIL);
+console.info("EMAIL", EMAIL);
 const template_uuid = Deno.env.get("MAILTRAP_TEMPLATE_UUID");
 
 export const sendMail = () => {
@@ -28,5 +28,5 @@ export const sendMail = () => {
 
       //   category: "Integration Test",
     })
-    .then(console.log, console.error);
+    .then(console.info, console.error);
 };

@@ -54,7 +54,7 @@ class KafkaConfig {
         topic: topic,
         messages: [message],
       });
-      console.log("Produced message to Kafka topic " + topic);
+      console.info("Produced message to Kafka topic " + topic);
     } catch (error) {
       console.error(error);
     } finally {

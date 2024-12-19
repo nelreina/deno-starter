@@ -18,13 +18,12 @@ class Postgres {
   }
   connect() {
     //  await this.client.connect();
-    console.log("Connected to the database");
+    console.info("Connected to the database");
   }
   // close the connection
   async close() {
     return await this.client.end();
   }
-
 }
 
 export default Postgres;

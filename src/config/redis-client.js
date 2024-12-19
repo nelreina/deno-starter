@@ -22,7 +22,7 @@ export const client = createClient({ url, name: SERVICE });
 export const pubsub = client.duplicate();
 
 client.on("connect", () => {
-  console.log(`✅ Connected to redis: ${url}`);
+  console.info(`✅ Connected to redis: ${url}`);
 });
 
 client.on("error", (error) => {
@@ -35,7 +35,7 @@ export const subscribe2RedisChannel = async (channel, callback) => {
   await pubsub.subscribe(channel, (payload) => {
     try {
       callback(JSON.parse(payload));
-      // console.log("parsed")
+      // console.info("parsed")
     } catch (error) {
       callback(payload);
       console.error(error.message);
@@ -79,14 +79,41 @@ export const getAllSetHashValues = async (key) => {
   // return await client.hGetAll(key);
 };
 
+export const setStringValue = async (setKey, key, value) => {
+  if (!client.isOpen) await client.connect();
+  await client.set(key, value);
+  await client.sAdd(setKey, key);
+  return true;
+};
+
+export const getAllStringValues = async (setKey) => {
+  if (!client.isOpen) await client.connect();
+  const keys = await client.sMembers(setKey);
+  const values = [];
+  for (const key of keys) {
+    values.push(await client.get(key));
+  }
+  return values;
+};
+
+export const clearStringValues = async (setKey) => {
+  if (!client.isOpen) await client.connect();
+  const keys = await client.sMembers(setKey);
+  for (const key of keys) {
+    await client.del(key);
+  }
+  await client.del(setKey);
+  return true;
+};
+
 export const connectToEventStream = async (
   stream,
-  handler = (str) => console.log(str),
-  events = false
+  handler = (str) => console.info(str),
+  events = false,
 ) => {
   if (!client.isOpen) await client.connect();
   const message = await EventStream(client, stream, SERVICE, events, handler);
-  console.log(message);
+  console.info(message);
   // return eventStream;
 };
 export const addToStream = async (streamName, event, aggregateId, payload) => {
@@ -125,18 +152,18 @@ const getLocalTimeStamp = () => {
 
 const addToEventLog = async (
   conn,
-  { streamKeyName, event, aggregateId, payload, serviceName = "" }
+  { streamKeyName, event, aggregateId, payload, serviceName = "" },
 ) => {
   if (!streamKeyName || (streamKeyName && streamKeyName.length === 0)) {
     throw Error(
-      "ERROR: Not a valid Event Stream Data!,  'streamKeyName' are required!"
+      "ERROR: Not a valid Event Stream Data!,  'streamKeyName' are required!",
     );
   }
   const timestamp = getLocalTimeStamp();
 
   if (!event || !aggregateId || !timestamp) {
     throw Error(
-      "ERROR: Not a valid Event Stream Data!,  'event', 'aggregateId' and 'timestamp' are required!"
+      "ERROR: Not a valid Event Stream Data!,  'event', 'aggregateId' and 'timestamp' are required!",
     );
   }
   // console.info(JSON.stringify({ log: "addToStream", event, aggregateId }));
@@ -149,4 +176,3 @@ const addToEventLog = async (
   };
   await conn.xAdd(streamKeyName, "*", streamData);
 };
-

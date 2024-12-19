@@ -5,7 +5,7 @@ import { db } from "../config/postgres.js";
 export const getEvents = async () => {
   try {
     const result = await db.client`SELECT * FROM event;`;
-    console.log(result.length);
+    console.info(result.length);
     return result;
   } catch (error) {
     console.error("❗️ Error: ", error.message);
