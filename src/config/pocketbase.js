@@ -5,7 +5,7 @@ const POCKETBASE = Deno.env.get("POCKETBASE_URL");
 const POCKETBASE_ADMIN_TOKEN = Deno.env.get("POCKETBASE_ADMIN_TOKEN");
 const POCKETBASE_ADMIN = Deno.env.get("POCKETBASE_ADMIN");
 
-console.info("POCKETBASE URL:", POCKETBASE);
+console.info("• POCKETBASE URL:", POCKETBASE);
 
 export const pbAdmin = new PocketBase(POCKETBASE);
 
