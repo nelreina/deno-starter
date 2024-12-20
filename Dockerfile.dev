@@ -8,6 +8,10 @@ WORKDIR /app
 
 # Copy the required files into the container
 # You may want to change this depending on your project structure
+COPY deno.json .
+COPY deno.lock .
+
+RUN deno install
 COPY . .
 
 RUN deno cache ./src/main.js
