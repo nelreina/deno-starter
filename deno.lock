@@ -1,34 +1,29 @@
 {
   "version": "4",
   "specifiers": {
-    "jsr:@std/assert@1": "1.0.10",
-    "jsr:@std/internal@^1.0.5": "1.0.5",
-    "npm:@nelreina/redis-stream-consumer@^2.1.6": "2.1.6",
+    "jsr:@nelreina/redis-client@0.1": "0.1.0",
+    "jsr:@nelreina/redis-stream-event@~0.2.2": "0.2.2",
+    "npm:hono@*": "4.6.14",
     "npm:hono@^4.6.14": "4.6.14",
+    "npm:node-schedule@*": "2.1.1",
     "npm:node-schedule@^2.1.1": "2.1.1",
     "npm:pocketbase@~0.22.1": "0.22.1",
     "npm:postgres@^3.4.5": "3.4.5",
     "npm:redis@^4.7.0": "4.7.0_@redis+client@1.6.0"
   },
   "jsr": {
-    "@std/assert@1.0.10": {
-      "integrity": "59b5cbac5bd55459a19045d95cc7c2ff787b4f8527c0dd195078ff6f9481fbb3",
+    "@nelreina/redis-client@0.1.0": {
+      "integrity": "1a050ee395a9cc859d0809db5efad7a87ce21bfcb4c7b2056e2a103d095f87d5",
       "dependencies": [
-        "jsr:@std/internal"
+        "jsr:@nelreina/redis-stream-event",
+        "npm:redis"
       ]
     },
-    "@std/internal@1.0.5": {
-      "integrity": "54a546004f769c1ac9e025abd15a76b6671ddc9687e2313b67376125650dc7ba"
+    "@nelreina/redis-stream-event@0.2.2": {
+      "integrity": "acff1107000d52b4307769c2e6e883e1cae6ce6334157dcfaeac37846bee75e0"
     }
   },
   "npm": {
-    "@nelreina/redis-stream-consumer@2.1.6": {
-      "integrity": "sha512-bgKv03dDrjMZVyLthS9TIOjCW6wysjSRB8w1JH2ZKPOl3iJtr94rptRT+w8STJCgLW+nB/AyU9WJ1Hrg5tsJLA==",
-      "dependencies": [
-        "dayjs",
-        "redis"
-      ]
-    },
     "@redis/bloom@1.2.0_@redis+client@1.6.0": {
       "integrity": "sha512-HG2DFjYKbpNmVXsa0keLHp/3leGJz1mjh09f2RLGGLQZzSHpkmZWuwJbAvo3QcRY8p80m5+ZdXZdYOSBLlp7Cg==",
       "dependencies": [
@@ -75,9 +70,6 @@
       "dependencies": [
         "luxon"
       ]
-    },
-    "dayjs@1.11.13": {
-      "integrity": "sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg=="
     },
     "generic-pool@3.9.0": {
       "integrity": "sha512-hymDOu5B53XvN4QT9dBmZxPX4CWhBPPLguTZ9MMFeFa/Kg0xWVfylOVNlJji/E7yTZWFd/q9GO5TxDLq156D7g=="
@@ -128,13 +120,11 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@std/assert@1",
-      "npm:@nelreina/redis-stream-consumer@^2.1.6",
+      "jsr:@nelreina/redis-client@0.1",
       "npm:hono@^4.6.14",
       "npm:node-schedule@^2.1.1",
       "npm:pocketbase@~0.22.1",
-      "npm:postgres@^3.4.5",
-      "npm:redis@^4.7.0"
+      "npm:postgres@^3.4.5"
     ]
   }
 }
