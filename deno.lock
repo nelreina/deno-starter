@@ -1,19 +1,16 @@
 {
   "version": "4",
   "specifiers": {
-    "jsr:@nelreina/redis-client@~0.1.2": "0.1.2",
+    "jsr:@nelreina/redis-client@~0.1.5": "0.1.5",
     "jsr:@nelreina/redis-stream-event@~0.2.3": "0.2.3",
     "npm:hono@*": "4.6.14",
-    "npm:hono@^4.6.14": "4.6.14",
     "npm:node-schedule@*": "2.1.1",
-    "npm:node-schedule@^2.1.1": "2.1.1",
     "npm:pocketbase@~0.22.1": "0.22.1",
-    "npm:postgres@^3.4.5": "3.4.5",
     "npm:redis@^4.7.0": "4.7.0_@redis+client@1.6.0"
   },
   "jsr": {
-    "@nelreina/redis-client@0.1.2": {
-      "integrity": "f351da908a14fb9ec877d65ae51f352a7eefdb38f0d4f1feb5e27dae66978ab3",
+    "@nelreina/redis-client@0.1.5": {
+      "integrity": "8820bfd1ace8711bc73ed0e7cf2fd80df503680d81b32d8f5bda7ad0a995c8c5",
       "dependencies": [
         "jsr:@nelreina/redis-stream-event",
         "npm:redis"
@@ -94,9 +91,6 @@
     "pocketbase@0.22.1": {
       "integrity": "sha512-hnzpDcIx5kbkUJXz6IkiTox6R4nb706u4rPSMy2FYCaI2OqBnFxbY0qwWBSqx1ERz/Xi61Uguf17Gb9bWZ8+kw=="
     },
-    "postgres@3.4.5": {
-      "integrity": "sha512-cDWgoah1Gez9rN3H4165peY9qfpEo+SA61oQv65O3cRUE1pOEoJWwddwcqKE8XZYjbblOJlYDlLV4h67HrEVDg=="
-    },
     "redis@4.7.0_@redis+client@1.6.0": {
       "integrity": "sha512-zvmkHEAdGMn+hMRXuMBtu4Vo5P6rHQjLoHftu+lBqq8ZTA3RCVC/WzD790bkKKiNFp7d5/9PcSD19fJyyRvOdQ==",
       "dependencies": [
@@ -120,7 +114,7 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@nelreina/redis-client@~0.1.2",
+      "jsr:@nelreina/redis-client@~0.1.5",
       "npm:hono@^4.6.14",
       "npm:node-schedule@^2.1.1",
       "npm:pocketbase@~0.22.1",
