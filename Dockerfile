@@ -16,9 +16,14 @@ RUN deno run build
 
 
 FROM debian:bullseye-slim
-RUN apt-get install tzdata
-ENV TZ America/Curacao
-RUN apt-get update && apt-get install -y curl
+ARG TIMEZONE
+ENV TZ $TIMEZONE
+
+RUN apt-get update && apt-get install -y tzdata && \
+    ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
+    dpkg-reconfigure -f noninteractive tzdata && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 EXPOSE 8000
 WORKDIR /app
 COPY --from=build /app/build/deno-app /app
