@@ -1,5 +1,5 @@
 # Use the official Deno image as the base image
-FROM denoland/deno:2.0.0
+FROM denoland/deno:2.1.4
 RUN apt-get install tzdata
 ENV TZ America/Curacao
 

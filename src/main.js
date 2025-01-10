@@ -10,11 +10,15 @@ const PORT = Deno.env.get("SERVICE_PORT") || 8000;
 const SERVICE_NAME = Deno.env.get("SERVICE_NAME") || "no-name-provided";
 const STREAM = Deno.env.get("STREAM") || "event-stream";
 
-Deno.addSignalListener("SIGTERM", () => {
-  db.close();
+const shutdown = () => {
   console.info("Shutting Down The app!");
+  redis.close();
   Deno.exit();
-});
+};
+
+Deno.addSignalListener("SIGINT", shutdown);
+Deno.addSignalListener("SIGKILL", shutdown);
+Deno.addSignalListener("SIGTERM", shutdown);
 
 const app = new Hono();
 app.use(logger());
