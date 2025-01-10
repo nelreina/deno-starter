@@ -17,7 +17,6 @@ const shutdown = () => {
 };
 
 Deno.addSignalListener("SIGINT", shutdown);
-Deno.addSignalListener("SIGKILL", shutdown);
 Deno.addSignalListener("SIGTERM", shutdown);
 
 const app = new Hono();
