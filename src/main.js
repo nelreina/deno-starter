@@ -25,8 +25,11 @@ app.get("/health-check", (c) => {
   return c.text("ok");
 });
 if (await connectToPocketbase()) {
-  schedule.scheduleJob("*/5 * * * * *", () => {
-    console.info("The answer to life, the universe, and everything!");
+  schedule.scheduleJob("*/10 * * * * *", () => {
+    redis.publishToStream(STREAM, "test_starters", "abc123", {
+      message: "Message from Deno",
+      timestamp: new Date().toISOString(),
+    });
   });
   await redis.connectToEventStream(STREAM, eventHandler, false);
   Deno.serve({ port: PORT }, app.fetch);

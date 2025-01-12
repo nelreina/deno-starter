@@ -1,23 +1,23 @@
 {
   "version": "4",
   "specifiers": {
-    "jsr:@nelreina/redis-client@~0.1.5": "0.1.5",
-    "jsr:@nelreina/redis-stream-event@~0.2.3": "0.2.3",
+    "jsr:@nelreina/redis-client@0.4": "0.4.0",
+    "jsr:@nelreina/redis-stream-event@0.4": "0.4.0",
     "npm:hono@*": "4.6.14",
     "npm:node-schedule@*": "2.1.1",
     "npm:pocketbase@~0.22.1": "0.22.1",
     "npm:redis@^4.7.0": "4.7.0_@redis+client@1.6.0"
   },
   "jsr": {
-    "@nelreina/redis-client@0.1.5": {
-      "integrity": "8820bfd1ace8711bc73ed0e7cf2fd80df503680d81b32d8f5bda7ad0a995c8c5",
+    "@nelreina/redis-client@0.4.0": {
+      "integrity": "af5f169e1a21d3c42ea4d2f52d17291dfe2a9fdcb36341fe738e666b7e0f3be7",
       "dependencies": [
         "jsr:@nelreina/redis-stream-event",
         "npm:redis"
       ]
     },
-    "@nelreina/redis-stream-event@0.2.3": {
-      "integrity": "d4a19d2cd9df509a5246f1ad8eff78bb0e514e3a9d8603717e7997b8bf320523"
+    "@nelreina/redis-stream-event@0.4.0": {
+      "integrity": "88cd7035aa728c96ca3ce976316fbcad5ea1633a7247ac6814e8af67462a54f9"
     }
   },
   "npm": {
@@ -114,7 +114,7 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@nelreina/redis-client@~0.1.5",
+      "jsr:@nelreina/redis-client@0.4",
       "npm:hono@^4.6.14",
       "npm:node-schedule@^2.1.1",
       "npm:pocketbase@~0.22.1",
