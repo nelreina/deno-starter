@@ -17,7 +17,6 @@ export async function getRunningContainerName() {
     }
     return null;
   } catch (error) {
-        console.warn("WARNING: Fetching containers:", error.message);
     return null;
   }
 }
