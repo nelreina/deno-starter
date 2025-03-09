@@ -27,6 +27,7 @@ export const connectToPocketbase = async () => {
     console.info(
       "✅ PocketBase admin authenticated for admin user: " + POCKETBASE_ADMIN,
     );
+    pbAdmin.autoCancellation(false);
   } else {
     console.error(
       "❗️ PocketBase admin authentication failed:  ",
