@@ -1,59 +1,60 @@
 {
   "version": "4",
   "specifiers": {
-    "jsr:@nelreina/redis-client@0.4": "0.4.0",
-    "jsr:@nelreina/redis-stream-event@0.4": "0.4.0",
+    "jsr:@nelreina/redis-client@0.6": "0.6.0",
+    "jsr:@nelreina/redis-stream-event@0.6": "0.6.0",
     "npm:hono@*": "4.6.14",
+    "npm:hono@^4.6.14": "4.6.14",
     "npm:node-schedule@*": "2.1.1",
-    "npm:pocketbase@~0.22.1": "0.22.1",
-    "npm:redis@^4.7.0": "4.7.0_@redis+client@1.6.0"
+    "npm:node-schedule@^2.1.1": "2.1.1",
+    "npm:redis@^4.7.0": "4.7.1_@redis+client@1.6.1"
   },
   "jsr": {
-    "@nelreina/redis-client@0.4.0": {
-      "integrity": "af5f169e1a21d3c42ea4d2f52d17291dfe2a9fdcb36341fe738e666b7e0f3be7",
+    "@nelreina/redis-client@0.6.0": {
+      "integrity": "86c074120ab5f91cd9d13b2263dd6ae4c1c2f33dd83fc58c712cc508ea411beb",
       "dependencies": [
         "jsr:@nelreina/redis-stream-event",
         "npm:redis"
       ]
     },
-    "@nelreina/redis-stream-event@0.4.0": {
-      "integrity": "88cd7035aa728c96ca3ce976316fbcad5ea1633a7247ac6814e8af67462a54f9"
+    "@nelreina/redis-stream-event@0.6.0": {
+      "integrity": "b1fbbe7fe67c7c633b6fc1464097585e431c4f948d9c65e38faf8b17734ad92c"
     }
   },
   "npm": {
-    "@redis/bloom@1.2.0_@redis+client@1.6.0": {
+    "@redis/bloom@1.2.0_@redis+client@1.6.1": {
       "integrity": "sha512-HG2DFjYKbpNmVXsa0keLHp/3leGJz1mjh09f2RLGGLQZzSHpkmZWuwJbAvo3QcRY8p80m5+ZdXZdYOSBLlp7Cg==",
       "dependencies": [
         "@redis/client"
       ]
     },
-    "@redis/client@1.6.0": {
-      "integrity": "sha512-aR0uffYI700OEEH4gYnitAnv3vzVGXCFvYfdpu/CJKvk4pHfLPEy/JSZyrpQ+15WhXe1yJRXLtfQ84s4mEXnPg==",
+    "@redis/client@1.6.1": {
+      "integrity": "sha512-/KCsg3xSlR+nCK8/8ZYSknYxvXHwubJrU82F3Lm1Fp6789VQ0/3RJKfsmRXjqfaTA++23CvC3hqmqe/2GEt6Kw==",
       "dependencies": [
         "cluster-key-slot",
         "generic-pool",
         "yallist"
       ]
     },
-    "@redis/graph@1.1.1_@redis+client@1.6.0": {
+    "@redis/graph@1.1.1_@redis+client@1.6.1": {
       "integrity": "sha512-FEMTcTHZozZciLRl6GiiIB4zGm5z5F3F6a6FZCyrfxdKOhFlGkiAqlexWMBzCi4DcRoyiOsuLfW+cjlGWyExOw==",
       "dependencies": [
         "@redis/client"
       ]
     },
-    "@redis/json@1.0.7_@redis+client@1.6.0": {
+    "@redis/json@1.0.7_@redis+client@1.6.1": {
       "integrity": "sha512-6UyXfjVaTBTJtKNG4/9Z8PSpKE6XgSyEb8iwaqDcy+uKrd/DGYHTWkUdnQDyzm727V7p21WUMhsqz5oy65kPcQ==",
       "dependencies": [
         "@redis/client"
       ]
     },
-    "@redis/search@1.2.0_@redis+client@1.6.0": {
+    "@redis/search@1.2.0_@redis+client@1.6.1": {
       "integrity": "sha512-tYoDBbtqOVigEDMAcTGsRlMycIIjwMCgD8eR2t0NANeQmgK/lvxNAvYyb6bZDD4frHRhIHkJu2TBRvB0ERkOmw==",
       "dependencies": [
         "@redis/client"
       ]
     },
-    "@redis/time-series@1.1.0_@redis+client@1.6.0": {
+    "@redis/time-series@1.1.0_@redis+client@1.6.1": {
       "integrity": "sha512-c1Q99M5ljsIuc4YdaCwfUEXsofakb9c8+Zse2qxTadu8TalLXuAESzLvFAvNVbkmSlvlzIQOLpBCmWI9wTOt+g==",
       "dependencies": [
         "@redis/client"
@@ -88,11 +89,8 @@
         "sorted-array-functions"
       ]
     },
-    "pocketbase@0.22.1": {
-      "integrity": "sha512-hnzpDcIx5kbkUJXz6IkiTox6R4nb706u4rPSMy2FYCaI2OqBnFxbY0qwWBSqx1ERz/Xi61Uguf17Gb9bWZ8+kw=="
-    },
-    "redis@4.7.0_@redis+client@1.6.0": {
-      "integrity": "sha512-zvmkHEAdGMn+hMRXuMBtu4Vo5P6rHQjLoHftu+lBqq8ZTA3RCVC/WzD790bkKKiNFp7d5/9PcSD19fJyyRvOdQ==",
+    "redis@4.7.1_@redis+client@1.6.1": {
+      "integrity": "sha512-S1bJDnqLftzHXHP8JsT5II/CtHWQrASX5K96REjWjlmWKrviSOLWmM7QnRLstAWsu1VBBV1ffV6DzCvxNP0UJQ==",
       "dependencies": [
         "@redis/bloom",
         "@redis/client",
@@ -110,15 +108,30 @@
     }
   },
   "remote": {
+    "https://deno.land/x/dockerapi@v0.1.1/lib/client.ts": "101b2073014fe09c0d32f7beb232d09fc4330b988f09aa4387f8801ce87f12d8",
+    "https://deno.land/x/dockerapi@v0.1.1/lib/container.ts": "b7dfee03b59fe3da08f19b4f96cc8b9cd49875ab72b84509cc5de322fe6aa55e",
+    "https://deno.land/x/dockerapi@v0.1.1/lib/exec.ts": "9e444ae622613e157fa434ea3cf6b2c7c4701a5585ac305d1c265464e9644004",
+    "https://deno.land/x/dockerapi@v0.1.1/lib/image.ts": "0f9b1eecb5eb6490d34976a705f13b84711ee99cf19e1d2405b138f86965dc24",
+    "https://deno.land/x/dockerapi@v0.1.1/lib/network.ts": "be7a09b0c2964ec30c952f338b200601b33ff54dea2cd23636e2c5246686f973",
+    "https://deno.land/x/dockerapi@v0.1.1/lib/system.ts": "9b6e1b741e35ac05cc251371479d4fa50bf235e3993655fb4a3e00cd2fc28a33",
+    "https://deno.land/x/dockerapi@v0.1.1/lib/types/container.ts": "c121a551d567ad2c3cc61fac48df66a43405d9261f2a08973529ca3143d85785",
+    "https://deno.land/x/dockerapi@v0.1.1/lib/types/exec.ts": "5274cc39027b99c96962c871fcc04fd7c0903b8586770c05a73968acda5417df",
+    "https://deno.land/x/dockerapi@v0.1.1/lib/types/http.ts": "e56afd7b33a48c2835ec81b3fabd6da577d663bd0754c9cc0beef8b11cbc4928",
+    "https://deno.land/x/dockerapi@v0.1.1/lib/types/image.ts": "d0f6a12cbbacea517f9677c2f84d8fcb435485d48f2a5576873f81a0f04965be",
+    "https://deno.land/x/dockerapi@v0.1.1/lib/types/network.ts": "53bc1168d350e856991610cee0a9ac83548dde12040cdf813d9222b2a74d04f2",
+    "https://deno.land/x/dockerapi@v0.1.1/lib/types/system.ts": "91bcbbfce64a75ee913371f7d0873bbced199ccf6ab861ad06c91149415ec4bd",
+    "https://deno.land/x/dockerapi@v0.1.1/lib/types/volume.ts": "9a89824aa26a084129708e5668d7e20a59fdccdb05e78966c46efbcb8c59353d",
+    "https://deno.land/x/dockerapi@v0.1.1/lib/util/http.ts": "b7f074597f55c10b17427a6fe44babd43795f277d14d39a0ca9a02144d287f05",
+    "https://deno.land/x/dockerapi@v0.1.1/lib/util/io.ts": "d0c141b50ea0bd9feb5b06e252d3667e5ece44157be7694845c7ff5d6a8b5718",
+    "https://deno.land/x/dockerapi@v0.1.1/lib/volume.ts": "a38a6ef182874b67221e20953c898fa3fdf6ad33124e241ca03c90ad9774ce4d",
+    "https://deno.land/x/dockerapi@v0.1.1/mod.ts": "eb253729c99f111315b143a93b55ede49689a0196df6db9e71a21ed77ae416e0",
     "https://deno.land/x/logging@v2.0.0/mod.ts": "d739563fbd8003b0e5fb15a5921e18879b4a65a8da4511f6246c4769019fea8a"
   },
   "workspace": {
     "dependencies": [
-      "jsr:@nelreina/redis-client@0.4",
+      "jsr:@nelreina/redis-client@0.6",
       "npm:hono@^4.6.14",
-      "npm:node-schedule@^2.1.1",
-      "npm:pocketbase@~0.22.1",
-      "npm:postgres@^3.4.5"
+      "npm:node-schedule@^2.1.1"
     ]
   }
 }

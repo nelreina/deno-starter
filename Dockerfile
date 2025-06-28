@@ -4,27 +4,40 @@ FROM denoland/deno:2.1.4 as build
 # Set the working directory
 WORKDIR /app
 
-# Copy the required files into the container
-# You may want to change this depending on your project structure
-COPY . .
+# Copy dependency files first for better caching
+COPY deno.json deno.lock ./
 
-# Specify the start command
-# Change "your_start_file.ts" to the entry file of your application
+# Cache dependencies
+RUN deno install
+
+# Copy source code
+COPY src/ ./src/
+
+# Cache and compile the application
 RUN deno cache ./src/main.js
-RUN deno run build
-# CMD ["deno",  "run", "dev"]
+RUN deno compile -A --output ./build/deno-app ./src/main.js
 
-
-FROM debian:bullseye-slim
+# Production stage - minimal image
+FROM gcr.io/distroless/cc-debian12:nonroot
+# Set timezone environment variable
 ARG TIMEZONE=America/Curacao
-ENV TZ $TIMEZONE
+ENV TZ=$TIMEZONE
 
-RUN apt-get update && apt-get install -y tzdata && \
-    ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && \
-    dpkg-reconfigure -f noninteractive tzdata && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Use non-root user (distroless provides this)
+USER nonroot
 
+# Expose service port
 EXPOSE 8000
+
+# Set working directory
 WORKDIR /app
-COPY --from=build /app/build/deno-app /app
-CMD ["/app/deno-app"]
+
+# Copy compiled binary from build stage
+COPY --from=build --chown=nonroot:nonroot /app/build/deno-app /app/deno-app
+
+# Add health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD ["/app/deno-app", "curl", "-f", "http://localhost:8000/health/live"] || exit 1
+
+# Run the application
+ENTRYPOINT ["/app/deno-app"]

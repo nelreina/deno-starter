@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis-stream
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - app-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: deno-redis-service
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SERVICE_NAME=redis-stream-service
+      - LOG_LEVEL=INFO
+      - ENVIRONMENT=development
+      - STREAM=event-stream
+      - TIMEZONE=America/Curacao
+    ports:
+      - "8000:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src:ro
+      - ./deno.json:/app/deno.json:ro
+      - ./deno.lock:/app/deno.lock:ro
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
