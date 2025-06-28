@@ -1,7 +1,6 @@
 import "https://deno.land/x/logging@v2.0.0/mod.ts";
 import { Hono } from "npm:hono";
 import { logger } from "npm:hono/logger";
-import { connectToPocketbase } from "./config/pocketbase.js";
 import { client as redis } from "./config/redis-client.js";
 import eventHandler from "./lib/event-handler.js";
 import schedule from "npm:node-schedule";
@@ -24,16 +23,11 @@ app.use(logger());
 app.get("/health-check", (c) => {
   return c.text("ok");
 });
-if (await connectToPocketbase()) {
   schedule.scheduleJob("*/10 * * * * *", () => {
     redis.publishToStream(STREAM, "test_starters", "abc123", {
       message: "Message from Deno",
       timestamp: new Date().toISOString(),
     });
-  });
-  await redis.connectToEventStream(STREAM, eventHandler, false);
+  });  await redis.connectToEventStream(STREAM, eventHandler, false);
   Deno.serve({ port: PORT }, app.fetch);
   console.info(`🚀 ${SERVICE_NAME} is running on http://localhost:${PORT}`);
-} else {
-  console.error("❗️ Can't start service without connecting to PocketBase");
-}
