@@ -24,6 +24,7 @@ services:
       - REDIS_PORT=6379
       - SERVICE_NAME=redis-stream-service
       - LOG_LEVEL=INFO
+      - LOG_FORMAT=text
       - ENVIRONMENT=development
       - STREAM=event-stream
       - TIMEZONE=America/Curacao

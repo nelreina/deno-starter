@@ -8,6 +8,17 @@ const LOG_LEVELS = {
 const LOG_LEVEL =
   LOG_LEVELS[Deno.env.get("LOG_LEVEL")?.toUpperCase() || "INFO"];
 
+const LOG_FORMAT = Deno.env.get("LOG_FORMAT") || "text";
+
+const LEVEL_COLORS = {
+  ERROR: "\x1b[31m", // Red
+  WARN: "\x1b[33m", // Yellow
+  INFO: "\x1b[36m", // Cyan
+  DEBUG: "\x1b[90m", // Gray
+};
+
+const RESET_COLOR = "\x1b[0m";
+
 class Logger {
   constructor(context = "app") {
     this.context = context;
@@ -18,15 +29,35 @@ class Logger {
     const serviceName = Deno.env.get("SERVICE_NAME") || "no-name-provided";
     const environment = Deno.env.get("ENVIRONMENT") || "development";
 
-    return JSON.stringify({
-      timestamp,
-      level,
-      service: serviceName,
-      environment,
-      context: this.context,
-      message,
-      ...metadata,
-    });
+    // JSON format for file logging or when explicitly requested
+    if (LOG_FORMAT === "json") {
+      return JSON.stringify({
+        timestamp,
+        level,
+        service: serviceName,
+        environment,
+        context: this.context,
+        message,
+        ...metadata,
+      });
+    }
+
+    // Human-readable format for console (Docker/Kubernetes logs)
+    const color = LEVEL_COLORS[level] || "";
+    const levelPadded = level.padEnd(5);
+
+    // Build metadata string if there are any metadata fields
+    let metaStr = "";
+    if (Object.keys(metadata).length > 0) {
+      // Filter out error objects for cleaner display
+      const displayMeta = { ...metadata };
+      if (displayMeta.error) {
+        displayMeta.error = displayMeta.error.message || displayMeta.error;
+      }
+      metaStr = ` ${JSON.stringify(displayMeta)}`;
+    }
+
+    return `${timestamp} ${color}${levelPadded}${RESET_COLOR} [${this.context}] ${message}${metaStr}`;
   }
 
   #log(level, message, metadata) {

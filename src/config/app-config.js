@@ -45,6 +45,9 @@ export class AppConfig {
         level: this.#validateLogLevel(
           this.#getOptionalEnv("LOG_LEVEL") || "INFO",
         ),
+        format: this.#validateLogFormat(
+          this.#getOptionalEnv("LOG_FORMAT") || "text",
+        ),
       },
       monitoring: {
         enabled: this.#getOptionalEnv("METRICS_ENABLED") === "true",
@@ -99,6 +102,18 @@ export class AppConfig {
     }
 
     return upperLevel;
+  }
+
+  #validateLogFormat(format) {
+    const validFormats = ["text", "json"];
+    const lowerFormat = format.toLowerCase();
+
+    if (!validFormats.includes(lowerFormat)) {
+      log.warn(`Invalid log format: ${format}, defaulting to text`);
+      return "text";
+    }
+
+    return lowerFormat;
   }
 
   #validateConfig(config) {

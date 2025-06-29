@@ -219,6 +219,7 @@ Optional:
 - `TRACE_ENABLED`
 - `MAX_RETRY_ATTEMPTS`
 - `CONNECTION_TIMEOUT`
+- `LOG_FORMAT` (text|json, default: text)
 
 ## 7. Suggested Improvements
 

@@ -5,23 +5,35 @@ const log = logger.child("event-handler");
 export default (message) => {
   const { streamId, event, aggregateId, data } = message;
 
-  log.info("Event received", {
+  log.info("📩 Event received from stream", {
     streamId,
     event,
     aggregateId,
-    dataKeys: data ? Object.keys(data) : [],
+    data: data || {},
   });
 
   try {
     // Process the message here
     // Add your business logic
 
+    // For test events, log additional details
+    if (event === "test_starters" || event === "manual_test") {
+      log.info("Processing test event", {
+        eventType: event,
+        payload: data,
+      });
+    }
+
     // Acknowledge the message
     message.ack(streamId);
 
-    log.debug("Event acknowledged", { streamId, event, aggregateId });
+    log.debug("✅ Event acknowledged successfully", {
+      streamId,
+      event,
+      aggregateId,
+    });
   } catch (error) {
-    log.error("Failed to process event", error, {
+    log.error("❌ Failed to process event", error, {
       streamId,
       event,
       aggregateId,

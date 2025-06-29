@@ -1,19 +1,20 @@
-# Deno Starter - Project Overview
+# Production-Ready Redis Stream Service
 
 ## Summary
 
-This is a Deno-based microservice starter that implements an event-driven
-architecture using Redis streams. The service connects to Redis for both
-publishing and consuming events, includes a basic HTTP health check endpoint,
-and can be deployed using Docker.
+This is a production-ready Deno-based microservice that implements event-driven
+architecture using Redis streams. The service features comprehensive health
+checks, structured logging, connection retry logic, graceful shutdown, and is
+designed for high availability in containerized environments
+(Docker/Kubernetes).
 
 ## Key Technologies
 
-- **Runtime**: Deno 2.1.4
+- **Runtime**: Deno 2.1.4+
 - **Web Framework**: Hono v4.6.14
-- **Event Streaming**: Redis client (@nelreina/redis-client v0.4.1)
+- **Event Streaming**: Redis client (@nelreina/redis-client v0.6.0)
 - **Scheduling**: node-schedule v2.1.1
-- **Containerization**: Docker with both production and development Dockerfiles
+- **Containerization**: Docker with production-ready multi-stage builds
 - **Language**: JavaScript (ES modules)
 
 ## Project Structure
@@ -21,29 +22,49 @@ and can be deployed using Docker.
 ```
 /
 ├── src/
-│   ├── main.js              # Entry point - HTTP server and Redis event stream connection
+│   ├── main.js                     # Entry point with startup orchestration
 │   ├── config/
-│   │   ├── redis-client.js  # Redis client configuration
-│   │   └── docker-info.js   # Docker container name resolution
+│   │   ├── app-config.js          # Configuration validation and management
+│   │   ├── redis-client.js        # Redis client initialization
+│   │   └── docker-info.js         # Docker container name resolution
 │   └── lib/
-│       └── event-handler.js # Event stream message handler
-├── deno.json                # Deno configuration and tasks
-├── deno.lock                # Dependency lock file
-├── Dockerfile               # Production multi-stage build
-├── Dockerfile.dev           # Development Docker setup
-└── logs/                    # Application logs directory
+│       ├── event-handler.js       # Event stream message processing
+│       ├── logger.js              # Structured logging (text/JSON formats)
+│       ├── health-check-service.js # Comprehensive health checks
+│       └── redis-connection-manager.js # Connection retry logic
+├── deno.json                      # Deno configuration and tasks
+├── deno.lock                      # Dependency lock file
+├── Dockerfile                     # Production multi-stage build (distroless)
+├── Dockerfile.dev                 # Development Docker setup
+├── docker-compose.yml             # Local development stack
+├── .env.example                   # Environment variable documentation
+├── REQUIREMENTS.md                # Detailed requirements specification
+└── test-health-checks.sh          # Health check testing script
 ```
 
 ## Core Features
 
-1. **Redis Event Streaming**: Connects to Redis streams for event-driven
-   communication
-2. **HTTP Server**: Hono-based web server with health check endpoint
+### Production-Ready Features
+
+1. **Redis Connection Management**: Exponential backoff retry logic (3 attempts:
+   5s, 15s, 30s)
+2. **Comprehensive Health Checks**: Kubernetes-compatible liveness/readiness
+   probes
+3. **Structured Logging**: Configurable text (console) or JSON
+   (file/aggregation) formats
+4. **Graceful Shutdown**: 30-second timeout with proper resource cleanup
+5. **Configuration Validation**: Environment variable validation on startup
+6. **High Availability**: Service starts without Redis, reports health
+   accurately
+
+### Application Features
+
+1. **Redis Event Streaming**: Bidirectional Redis stream communication
+2. **HTTP Server**: Hono-based web server with multiple health endpoints
 3. **Scheduled Events**: Publishes test events to Redis every 10 seconds
-4. **Docker Support**: Both production (multi-stage) and development containers
-5. **Graceful Shutdown**: Handles SIGINT and SIGTERM signals
-6. **Container-aware**: Automatically detects running container name for Redis
-   consumer
+4. **Manual Testing**: POST endpoint for triggering test events
+5. **Container-aware**: Automatically detects container name for Redis consumer
+6. **Security**: Non-root user execution, minimal attack surface
 
 ## Development Commands
 
@@ -55,26 +76,36 @@ deno task dev
 
 # Build standalone executable
 deno task build
+
+# Run with Docker Compose (includes Redis)
+docker-compose up
 ```
 
-### Testing & Linting
+### Testing & Quality
 
 ```bash
 # Type checking
 deno check src/main.js
 
-# Formatting
+# Code formatting
 deno fmt
 
 # Linting
 deno lint
 
-# Run tests (when available)
-deno test
-
-# Test health check endpoints
+# Test health check endpoints and manual triggers
 ./test-health-checks.sh
 ```
+
+## Health Check Endpoints
+
+The service provides industry-standard health check endpoints:
+
+- **GET /health/live** - Liveness probe (process running)
+- **GET /health/ready** - Readiness probe (dependencies healthy)
+- **GET /health** - Detailed health status with component breakdown
+- **GET /health-check** - Legacy endpoint for backward compatibility
+- **POST /trigger-test-event** - Manual event publishing for testing
 
 ## Environment Variables
 
@@ -82,60 +113,169 @@ deno test
 
 - `REDIS_HOST`: Redis server hostname
 - `REDIS_PORT`: Redis server port
+- `SERVICE_NAME`: Service identifier
+
+### Optional Configuration
+
 - `REDIS_USER`: Redis username (if auth enabled)
 - `REDIS_PW`: Redis password (if auth enabled)
-- `SERVICE_NAME`: Name of this service (default: "no-name-provided")
-
-### Optional
-
 - `SERVICE_PORT`: HTTP server port (default: 8000)
 - `STREAM`: Redis stream name (default: "event-stream")
-- `TIMEZONE`: Timezone for the service (default in Docker: "America/Curacao")
-- `HOSTNAME`: Container hostname for automatic name detection
+- `LOG_LEVEL`: ERROR, WARN, INFO, DEBUG (default: INFO)
+- `LOG_FORMAT`: text, json (default: text)
+- `ENVIRONMENT`: development, staging, production (default: development)
+- `SERVICE_VERSION`: Version identifier (default: 1.0.0)
+- `TIMEZONE`: Timezone setting (default: UTC)
+
+### Redis Connection Tuning
+
+- `CONNECTION_TIMEOUT`: Connection timeout in ms (default: 10000)
+- `MAX_RETRY_ATTEMPTS`: Maximum connection retries (default: 3)
+- `RETRY_DELAYS`: Comma-separated delays in ms (default: 5000,15000,30000)
+
+### Optional Features
+
+- `REDIS_TLS_ENABLED`: Enable TLS for Redis (default: false)
+- `METRICS_ENABLED`: Enable metrics collection (default: false)
+- `TRACE_ENABLED`: Enable tracing (default: false)
 
 ## Docker Usage
 
-### Development
+### Development with Docker Compose
 
 ```bash
-docker build -f Dockerfile.dev -t deno-starter-dev .
-docker run -p 8000:8000 --env-file .env deno-starter-dev
+# Start Redis and application
+docker-compose up
+
+# View logs
+docker-compose logs -f app
+
+# Stop services
+docker-compose down
 ```
 
-### Production
+### Production Deployment
 
 ```bash
-docker build -t deno-starter .
-docker run -p 8000:8000 --env-file .env deno-starter
+# Build production image
+docker build -t redis-stream-service .
+
+# Run with environment file
+docker run -p 8000:8000 --env-file .env redis-stream-service
+
+# Or with individual variables
+docker run -p 8000:8000 \
+  -e REDIS_HOST=redis-server \
+  -e REDIS_PORT=6379 \
+  -e SERVICE_NAME=my-service \
+  redis-stream-service
 ```
+
+## Kubernetes Deployment
+
+The service is designed for Kubernetes with:
+
+```yaml
+# Health check configuration
+livenessProbe:
+  httpGet:
+    path: /health/live
+    port: 8000
+  initialDelaySeconds: 10
+  periodSeconds: 30
+
+readinessProbe:
+  httpGet:
+    path: /health/ready
+    port: 8000
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+# Resource limits
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "500m"
+  limits:
+    memory: "1Gi"
+    cpu: "2000m"
+```
+
+## Logging Configuration
+
+### Text Format (Console/Docker logs)
+
+```
+2025-06-28T23:40:13.653Z INFO  [redis-connection] Connection attempt 1/3 {"attempt":1,"maxRetries":3}
+2025-06-28T23:40:13.654Z ERROR [event-handler] Failed to process event {"error":"Connection timeout"}
+```
+
+### JSON Format (File/Aggregation systems)
+
+```json
+{
+  "timestamp": "2025-06-28T23:39:56.862Z",
+  "level": "INFO",
+  "service": "my-service",
+  "environment": "production",
+  "context": "redis-connection",
+  "message": "Connection attempt 1/3",
+  "attempt": 1,
+  "maxRetries": 3
+}
+```
+
+## Startup Sequence
+
+The service follows a carefully orchestrated startup sequence:
+
+1. **Configuration Loading**: Validate environment variables
+2. **Redis Connection**: Connect with retry logic (exits after 3 failures)
+3. **Job Scheduling**: Set up periodic test event publishing
+4. **HTTP Server**: Start health check endpoints
+5. **Event Stream**: Connect to Redis stream (blocking - keeps service alive)
 
 ## Important Implementation Details
 
-1. **Redis Event Consumer**: The service connects to Redis streams with
-   auto-cancellation disabled (connectToEventStream with false parameter)
+1. **Connection Retry Logic**: Service will retry Redis connection 3 times with
+   exponential backoff. After 1 minute of failures, it logs warnings. After all
+   retries fail, the service exits.
 
-2. **Container Name Resolution**: Attempts to automatically detect the Docker
-   container name by checking the hostname against running containers. Falls
-   back to lowercase SERVICE_NAME if detection fails.
+2. **Health Check Behavior**: Service reports "not ready" if Redis is
+   unavailable but continues running to allow for Redis recovery.
 
-3. **Event Publishing**: A scheduled job publishes test events every 10 seconds
-   to the configured stream with:
-   - Event type: "test_starters"
-   - Aggregate ID: "abc123"
-   - Payload: { message, timestamp }
+3. **Graceful Shutdown**: Handles SIGINT/SIGTERM with 30-second timeout,
+   properly closing Redis connections and canceling scheduled jobs.
 
-4. **Event Handler**: Simple acknowledgment handler that logs received events
-   and acknowledges them back to Redis
+4. **Event Stream Processing**: Uses Redis consumer groups for reliable message
+   processing with automatic acknowledgment.
 
-5. **Health Check**: GET endpoint at `/health-check` returns "ok"
+5. **Container Detection**: Automatically resolves container name for Redis
+   consumer identification, fallback to service name.
 
-## Notes for Development
+6. **Security**: Runs as non-root user in production containers, uses distroless
+   base image for minimal attack surface.
 
-- The service uses Deno's built-in permissions system - runs with `-A` (all
-  permissions) in development
-- Logs are written to the `logs/` directory with ISO timestamp filenames
-- The production Docker image uses a multi-stage build to create a minimal
-  Debian-based container with only the compiled executable
-- Consider adding proper error handling for Redis connection failures
-- Consider implementing proper logging instead of console.log statements
-- Add tests for the event handler and Redis integration
+## Testing Commands
+
+```bash
+# Test health endpoints
+curl http://localhost:8000/health/live
+curl http://localhost:8000/health/ready
+curl http://localhost:8000/health
+
+# Trigger manual test event
+curl -X POST http://localhost:8000/trigger-test-event
+
+# Run comprehensive test script
+./test-health-checks.sh
+```
+
+## Development Notes
+
+- Use `LOG_FORMAT=json` for structured logging in production
+- Set `LOG_LEVEL=DEBUG` for detailed troubleshooting
+- The service requires Redis to be available for full functionality
+- Event stream connection is blocking and keeps the service alive
+- Container builds use multi-stage process for minimal production images
+- All code follows Deno best practices with proper ES module imports

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "Testing health check endpoints..."
-echo "================================"
+echo "Testing health check endpoints and event publishing..."
+echo "===================================================="
 
 # Base URL
 BASE_URL="http://localhost:8000"
@@ -12,7 +12,7 @@ curl -s -o /dev/null -w "%{http_code}" $BASE_URL/health/live
 echo ""
 
 # Test readiness probe
-echo -n "Testing /health/ready: "
+echo "Testing /health/ready:"
 curl -s $BASE_URL/health/ready | jq .
 echo ""
 
@@ -24,4 +24,10 @@ echo ""
 # Test legacy health check
 echo -n "Testing /health-check: "
 curl -s $BASE_URL/health-check
+echo ""
+
+# Test manual event trigger
+echo ""
+echo "Testing manual event trigger:"
+curl -s -X POST $BASE_URL/trigger-test-event | jq .
 echo ""

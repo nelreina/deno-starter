@@ -91,6 +91,35 @@ app.use(honoLogger());
 // Register health check routes
 healthCheckService.registerRoutes(app);
 
+// Add a manual test event endpoint for debugging
+app.post("/trigger-test-event", async (c) => {
+  try {
+    log.info("Manual test event triggered");
+    await redis.publishToStream(
+      config.stream.name,
+      "manual_test",
+      "manual123",
+      {
+        message: "Manual test event from endpoint",
+        timestamp: new Date().toISOString(),
+        triggeredBy: "manual",
+      },
+    );
+    return c.json({
+      success: true,
+      message: "Test event published",
+      stream: config.stream.name,
+    });
+  } catch (error) {
+    log.error("Failed to publish manual test event", error);
+    c.status(500);
+    return c.json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
 // Create a wrapped event handler that updates status
 const wrappedEventHandler = (message) => {
   eventStreamStatus.lastMessage = new Date().toISOString();
@@ -109,26 +138,40 @@ async function startApplication() {
     // Connect to Redis with retry logic
     await redisConnectionManager.connect();
 
-    // Connect to event stream
-    log.info("Connecting to event stream", { stream: config.stream.name });
-    await redis.connectToEventStream(
-      config.stream.name,
-      wrappedEventHandler,
-      false,
-    );
     eventStreamStatus.active = true;
     log.info("Event stream connected successfully");
 
     // Schedule periodic test events
     globalThis.scheduledJob = schedule.scheduleJob("*/10 * * * * *", () => {
       if (!isShuttingDown) {
-        redis.publishToStream(config.stream.name, "test_starters", "abc123", {
-          message: "Message from Deno",
-          timestamp: new Date().toISOString(),
+        log.info("📤 Publishing scheduled test event to stream", {
+          stream: config.stream.name,
+          eventType: "test_starters",
+          aggregateId: "abc123",
         });
+        try {
+          redis.publishToStream(config.stream.name, "test_starters", "abc123", {
+            message: "Message from Deno",
+            timestamp: new Date().toISOString(),
+          });
+          log.info("✅ Test event published successfully");
+        } catch (error) {
+          log.error("❌ Failed to publish test event", error);
+        }
+      } else {
+        log.debug("Skipping test event publication - service is shutting down");
       }
     });
-    log.info("Scheduled job created for test events");
+
+    if (globalThis.scheduledJob) {
+      log.info("Scheduled job created for test events", {
+        schedule: "*/10 * * * * *",
+        eventType: "test_starters",
+        nextRun: globalThis.scheduledJob.nextInvocation(),
+      });
+    } else {
+      log.error("Failed to create scheduled job");
+    }
 
     // Start HTTP server
     Deno.serve({ port: config.service.port }, app.fetch);
@@ -137,9 +180,16 @@ async function startApplication() {
       url: `http://localhost:${config.service.port}`,
       healthCheck: `http://localhost:${config.service.port}/health`,
     });
+    // Connect to event stream
+    log.info("Connecting to event stream", { stream: config.stream.name });
+    await redis.connectToEventStream(
+      config.stream.name,
+      wrappedEventHandler,
+      false,
+    );
 
     // Keep the process alive
-    await new Promise(() => {});
+    // await new Promise(() => {});
   } catch (error) {
     log.error("Failed to start application", error);
     Deno.exit(1);
