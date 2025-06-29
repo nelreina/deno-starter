@@ -4,7 +4,7 @@ import { client as redis } from "./config/redis-client.js";
 import { appConfig } from "./config/app-config.js";
 import eventHandler from "./lib/event-handler.js";
 import schedule from "node-schedule";
-import { Logger, logger } from "./lib/logger.js";
+import Logger, { logger } from "./lib/logger.js";
 import { RedisConnectionManager } from "./lib/redis-connection-manager.js";
 import { HealthCheckService } from "./lib/health-check-service.js";
 
