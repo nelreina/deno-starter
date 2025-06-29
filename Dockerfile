@@ -1,5 +1,5 @@
 # Use the official Deno image as the base image
-FROM denoland/deno:2.1.4 as build
+FROM denoland/deno:2.3.7 as build
 
 # Set the working directory
 WORKDIR /app
@@ -35,9 +35,8 @@ WORKDIR /app
 # Copy compiled binary from build stage
 COPY --from=build --chown=nonroot:nonroot /app/build/deno-app /app/deno-app
 
-# Add health check - use wget which is available in distroless
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8000/health/live || exit 1
+# Note: Health checks removed for distroless image compatibility
+# Use Kubernetes probes or external monitoring for health checks
 
 # Run the application
 ENTRYPOINT ["/app/deno-app"]

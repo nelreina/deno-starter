@@ -1,5 +1,5 @@
 # Use the official Deno image as the base image
-FROM denoland/deno:2.1.4
+FROM denoland/deno:2.3.7
 
 # Set timezone
 ARG TIMEZONE=America/Curacao
@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user for development
-RUN useradd -m -u 1000 -s /bin/bash deno
+# Create non-root user for development (if not exists)
+RUN id -u deno >/dev/null 2>&1 || useradd -m -u 1000 -s /bin/bash deno
 
 # Set the working directory
 WORKDIR /app
