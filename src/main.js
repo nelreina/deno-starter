@@ -3,7 +3,6 @@ import { logger as honoLogger } from "hono/logger";
 import { client as redis } from "./config/redis-client.js";
 import { appConfig } from "./config/app-config.js";
 import eventHandler from "./lib/event-handler.js";
-import schedule from "node-schedule";
 import Logger, { logger } from "./lib/logger.js";
 import { RedisConnectionManager } from "./lib/redis-connection-manager.js";
 import { HealthCheckService } from "./lib/health-check-service.js";
@@ -241,38 +240,6 @@ async function startApplication() {
   try {
     // Connect to Redis with retry logic
     await redisConnectionManager.connect();
-
-    // // Schedule periodic test events
-    // globalThis.scheduledJob = schedule.scheduleJob("*/10 * * * * *", () => {
-    //   if (!isShuttingDown) {
-    //     log.info("📤 Publishing scheduled test event to stream", {
-    //       stream: config.stream.name,
-    //       eventType: "test_starters",
-    //       aggregateId: "abc123",
-    //     });
-    //     try {
-    //       redis.publishToStream(config.stream.name, "test_starters", "abc123", {
-    //         message: "Message from Deno",
-    //         timestamp: new Date().toISOString(),
-    //       });
-    //       log.info("✅ Test event published successfully");
-    //     } catch (error) {
-    //       log.error("❌ Failed to publish test event", error);
-    //     }
-    //   } else {
-    //     log.debug("Skipping test event publication - service is shutting down");
-    //   }
-    // });
-
-    if (globalThis.scheduledJob) {
-      log.info("Scheduled job created for test events", {
-        schedule: "*/10 * * * * *",
-        eventType: "test_starters",
-        nextRun: globalThis.scheduledJob.nextInvocation(),
-      });
-    } else {
-      log.error("Failed to create scheduled job");
-    }
 
     // Start HTTP server
     Deno.serve({ port: config.service.port }, app.fetch);
