@@ -63,6 +63,8 @@ export class AppConfig {
       environment: config.service.environment,
       redisHost: config.redis.host,
       streamName: config.stream.name,
+      // Don't log sensitive information
+      redisAuth: config.redis.user ? "enabled" : "disabled",
     });
 
     return config;
@@ -146,6 +148,33 @@ export class AppConfig {
     if (config.redis.connection.retryDelays.length === 0) {
       throw new Error("At least one retry delay must be specified");
     }
+
+    // Validate stream name
+    if (config.stream.name && !/^[a-zA-Z0-9._-]+$/.test(config.stream.name)) {
+      throw new Error("Invalid stream name: contains invalid characters");
+    }
+  }
+
+  // Mask sensitive data for logging
+  #maskSensitiveData(data) {
+    if (typeof data !== "object" || data === null) {
+      return data;
+    }
+
+    const masked = { ...data };
+    const sensitiveKeys = ["password", "pw", "secret", "key", "token", "auth"];
+
+    for (const key of Object.keys(masked)) {
+      if (
+        sensitiveKeys.some((sensitive) => key.toLowerCase().includes(sensitive))
+      ) {
+        masked[key] = "***MASKED***";
+      } else if (typeof masked[key] === "object") {
+        masked[key] = this.#maskSensitiveData(masked[key]);
+      }
+    }
+
+    return masked;
   }
 
   setStreamConsumerName(consumerName) {
@@ -154,7 +183,7 @@ export class AppConfig {
   }
 
   getRedisClientConfig() {
-    return {
+    const config = {
       redisHost: this.config.redis.host,
       redisPort: this.config.redis.port,
       redisUser: this.config.redis.user,
@@ -163,6 +192,12 @@ export class AppConfig {
       timeZone: this.config.timezone,
       streamConsumerName: this.config.stream.consumerName,
     };
+
+    // Log configuration without sensitive data
+    const logConfig = this.#maskSensitiveData(config);
+    log.debug("Redis client configuration", logConfig);
+
+    return config;
   }
 
   getConnectionConfig() {

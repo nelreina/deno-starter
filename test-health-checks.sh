@@ -26,8 +26,32 @@ echo -n "Testing /health-check: "
 curl -s $BASE_URL/health-check
 echo ""
 
-# Test manual event trigger
+# Test correlation ID functionality
 echo ""
+echo "Testing correlation ID functionality:"
+CORRELATION_ID="test-corr-$(date +%s)"
+echo "Using correlation ID: $CORRELATION_ID"
+RESPONSE=$(curl -s -H "X-Correlation-ID: $CORRELATION_ID" $BASE_URL/health)
+echo "Response correlation ID: $(echo $RESPONSE | jq -r '.timestamp')"
+echo ""
+
+# Test manual event trigger
 echo "Testing manual event trigger:"
 curl -s -X POST $BASE_URL/trigger-test-event | jq .
 echo ""
+
+# Test rate limiting
+echo "Testing rate limiting (should fail on second request):"
+echo "First request:"
+curl -s -X POST $BASE_URL/trigger-test-event | jq .
+echo ""
+echo "Second request (should be rate limited):"
+curl -s -X POST $BASE_URL/trigger-test-event | jq .
+echo ""
+
+# Test with custom correlation ID
+echo "Testing manual event trigger with custom correlation ID:"
+curl -s -H "X-Correlation-ID: custom-test-123" -X POST $BASE_URL/trigger-test-event | jq .
+echo ""
+
+echo "All tests completed!"

@@ -35,9 +35,9 @@ WORKDIR /app
 # Copy compiled binary from build stage
 COPY --from=build --chown=nonroot:nonroot /app/build/deno-app /app/deno-app
 
-# Add health check
+# Add health check - use wget which is available in distroless
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD ["/app/deno-app", "curl", "-f", "http://localhost:8000/health/live"] || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8000/health/live || exit 1
 
 # Run the application
 ENTRYPOINT ["/app/deno-app"]

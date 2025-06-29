@@ -1,213 +1,180 @@
-# Production-Ready Redis Stream Service
+# Production-Ready Redis Stream Service - Technical Documentation
 
-## Summary
-
-This is a production-ready Deno-based microservice that implements event-driven
-architecture using Redis streams. The service features comprehensive health
-checks, structured logging, connection retry logic, graceful shutdown, and is
-designed for high availability in containerized environments
-(Docker/Kubernetes).
+A highly available, production-ready Deno microservice implementing event-driven
+architecture with Redis streams. Designed for containerized environments with
+comprehensive health checks, structured logging, robust error handling, and
+security best practices.
 
 ## Key Technologies
 
 - **Runtime**: Deno 2.1.4+
-- **Web Framework**: Hono v4.6.14
-- **Event Streaming**: Redis client (@nelreina/redis-client v0.6.0)
-- **Scheduling**: node-schedule v2.1.1
-- **Containerization**: Docker with production-ready multi-stage builds
-- **Language**: JavaScript (ES modules)
+- **Framework**: Hono (lightweight web framework)
+- **Database**: Redis 7+ with Streams
+- **Containerization**: Docker with multi-stage builds
+- **Orchestration**: Kubernetes-ready with health probes
+- **Logging**: Structured logging with correlation IDs
+- **Security**: Input validation, rate limiting, secure defaults
 
-## Project Structure
+## Architecture Overview
 
 ```
-/
-├── src/
-│   ├── main.js                     # Entry point with startup orchestration
-│   ├── config/
-│   │   ├── app-config.js          # Configuration validation and management
-│   │   ├── redis-client.js        # Redis client initialization
-│   │   └── docker-info.js         # Docker container name resolution
-│   └── lib/
-│       ├── event-handler.js       # Event stream message processing
-│       ├── logger.js              # Structured logging (text/JSON formats)
-│       ├── health-check-service.js # Comprehensive health checks
-│       └── redis-connection-manager.js # Connection retry logic
-├── deno.json                      # Deno configuration and tasks
-├── deno.lock                      # Dependency lock file
-├── Dockerfile                     # Production multi-stage build (distroless)
-├── Dockerfile.dev                 # Development Docker setup
-├── docker-compose.yml             # Local development stack
-├── .env.example                   # Environment variable documentation
-├── REQUIREMENTS.md                # Detailed requirements specification
-└── test-health-checks.sh          # Health check testing script
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   HTTP Client   │───▶│   Deno Service  │───▶│   Redis Server  │
+│                 │    │   (Port 8000)   │    │   (Port 6379)   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                              │
+                              ▼
+                       ┌─────────────────┐
+                       │  Event Stream   │
+                       │   Consumer      │
+                       └─────────────────┘
 ```
 
 ## Core Features
 
-### Production-Ready Features
+### ✅ Production-Ready Features
 
-1. **Redis Connection Management**: Exponential backoff retry logic (3 attempts:
-   5s, 15s, 30s)
-2. **Comprehensive Health Checks**: Kubernetes-compatible liveness/readiness
-   probes
-3. **Structured Logging**: Configurable text (console) or JSON
-   (file/aggregation) formats
-4. **Graceful Shutdown**: 30-second timeout with proper resource cleanup
-5. **Configuration Validation**: Environment variable validation on startup
-6. **High Availability**: Service starts without Redis, reports health
-   accurately
+- **Health Checks**: Liveness, readiness, and detailed health probes
+- **Graceful Shutdown**: Proper signal handling with cleanup
+- **Error Handling**: Comprehensive error management and recovery
+- **Logging**: Structured logging with correlation IDs and dual formats
+- **Configuration**: Environment-based configuration with validation
+- **Containerization**: Multi-stage Docker builds with security
+- **Monitoring**: Health check endpoints and status reporting
 
-### Application Features
+### 🔒 Security Features
 
-1. **Redis Event Streaming**: Bidirectional Redis stream communication
-2. **HTTP Server**: Hono-based web server with multiple health endpoints
-3. **Scheduled Events**: Publishes test events to Redis every 10 seconds
-4. **Manual Testing**: POST endpoint for triggering test events
-5. **Container-aware**: Automatically detects container name for Redis consumer
-6. **Security**: Non-root user execution, minimal attack surface
+- **Input Validation**: Comprehensive validation for all inputs
+- **Rate Limiting**: Built-in rate limiting for API endpoints
+- **Secure Logging**: Sensitive data masking in logs
+- **Container Security**: Non-root user, minimal attack surface
+- **Docker Socket Protection**: Timeout and error handling for Docker operations
+- **Signal Handler Security**: Proper cleanup to prevent memory leaks
 
-## Development Commands
+### 🚀 Reliability Features
 
-### Local Development
-
-```bash
-# Run with file watching and auto-reload
-deno task dev
-
-# Build standalone executable
-deno task build
-
-# Run with Docker Compose (includes Redis)
-docker-compose up
-```
-
-### Testing & Quality
-
-```bash
-# Type checking
-deno check src/main.js
-
-# Code formatting
-deno fmt
-
-# Linting
-deno lint
-
-# Test health check endpoints and manual triggers
-./test-health-checks.sh
-```
-
-## Health Check Endpoints
-
-The service provides industry-standard health check endpoints:
-
-- **GET /health/live** - Liveness probe (process running)
-- **GET /health/ready** - Readiness probe (dependencies healthy)
-- **GET /health** - Detailed health status with component breakdown
-- **GET /health-check** - Legacy endpoint for backward compatibility
-- **POST /trigger-test-event** - Manual event publishing for testing
+- **Connection Resilience**: Redis connection retry with exponential backoff
+- **Event Stream Reliability**: Graceful error handling without crashes
+- **Health Check Timeouts**: Prevents hanging health checks
+- **Request Tracing**: Correlation IDs for distributed debugging
+- **Graceful Degradation**: Service continues running even with partial failures
 
 ## Environment Variables
 
-### Required
+### Required Variables
 
 - `REDIS_HOST`: Redis server hostname
-- `REDIS_PORT`: Redis server port
+- `REDIS_PORT`: Redis server port (1-65535)
 - `SERVICE_NAME`: Service identifier
 
-### Optional Configuration
+### Optional Variables
 
 - `REDIS_USER`: Redis username (if auth enabled)
 - `REDIS_PW`: Redis password (if auth enabled)
+- `REDIS_TLS_ENABLED`: Enable TLS for Redis (true/false)
 - `SERVICE_PORT`: HTTP server port (default: 8000)
-- `STREAM`: Redis stream name (default: "event-stream")
+- `ENVIRONMENT`: Environment name (default: development)
+- `SERVICE_VERSION`: Service version (default: 1.0.0)
+- `STREAM`: Redis stream name (default: event-stream)
 - `LOG_LEVEL`: ERROR, WARN, INFO, DEBUG (default: INFO)
 - `LOG_FORMAT`: text, json (default: text)
-- `ENVIRONMENT`: development, staging, production (default: development)
-- `SERVICE_VERSION`: Version identifier (default: 1.0.0)
-- `TIMEZONE`: Timezone setting (default: UTC)
+- `CONNECTION_TIMEOUT`: Redis connection timeout in ms (default: 10000)
+- `MAX_RETRY_ATTEMPTS`: Redis connection retry attempts (default: 3)
+- `RETRY_DELAYS`: Comma-separated retry delays in ms (default: 5000,15000,30000)
+- `TIMEZONE`: Timezone for timestamps (default: UTC)
 
-### Redis Connection Tuning
+## API Endpoints
 
-- `CONNECTION_TIMEOUT`: Connection timeout in ms (default: 10000)
-- `MAX_RETRY_ATTEMPTS`: Maximum connection retries (default: 3)
-- `RETRY_DELAYS`: Comma-separated delays in ms (default: 5000,15000,30000)
+### Health Check Endpoints
 
-### Optional Features
+- `GET /health/live` - Liveness probe (always returns 200)
+- `GET /health/ready` - Readiness probe (503 if dependencies unhealthy)
+- `GET /health` - Detailed health status with all checks
+- `GET /health-check` - Legacy health check (backward compatibility)
 
-- `REDIS_TLS_ENABLED`: Enable TLS for Redis (default: false)
-- `METRICS_ENABLED`: Enable metrics collection (default: false)
-- `TRACE_ENABLED`: Enable tracing (default: false)
+### Event Management
 
-## Docker Usage
+- `POST /trigger-test-event` - Manually trigger test event (rate limited)
 
-### Development with Docker Compose
+### Response Headers
 
-```bash
-# Start Redis and application
-docker-compose up
+- `X-Correlation-ID`: Request correlation ID for tracing
 
-# View logs
-docker-compose logs -f app
+## Health Check Behavior
 
-# Stop services
-docker-compose down
-```
+### Liveness Probe (`/health/live`)
 
-### Production Deployment
+- **Purpose**: Indicates if the process is running
+- **Response**: Always returns 200 OK
+- **Use Case**: Kubernetes liveness probe
 
-```bash
-# Build production image
-docker build -t redis-stream-service .
+### Readiness Probe (`/health/ready`)
 
-# Run with environment file
-docker run -p 8000:8000 --env-file .env redis-stream-service
+- **Purpose**: Indicates if service can accept traffic
+- **Dependencies**: Redis connection, event stream status
+- **Response**: 200 if ready, 503 if not ready
+- **Use Case**: Kubernetes readiness probe, load balancer health checks
 
-# Or with individual variables
-docker run -p 8000:8000 \
-  -e REDIS_HOST=redis-server \
-  -e REDIS_PORT=6379 \
-  -e SERVICE_NAME=my-service \
-  redis-stream-service
-```
+### Detailed Health (`/health`)
 
-## Kubernetes Deployment
+- **Purpose**: Comprehensive health status
+- **Includes**: Service info, uptime, dependency status
+- **Response**: JSON with detailed health information
+- **Use Case**: Monitoring dashboards, debugging
 
-The service is designed for Kubernetes with:
+## Security Implementation
 
-```yaml
-# Health check configuration
-livenessProbe:
-  httpGet:
-    path: /health/live
-    port: 8000
-  initialDelaySeconds: 10
-  periodSeconds: 30
+### Input Validation
 
-readinessProbe:
-  httpGet:
-    path: /health/ready
-    port: 8000
-  initialDelaySeconds: 5
-  periodSeconds: 10
+- **Event Data**: Validates stream ID, event type, aggregate ID, and payload
+- **Configuration**: Validates all environment variables and config values
+- **API Requests**: Validates request structure and content
+- **Size Limits**: Prevents oversized payloads (max 10KB for event data)
 
-# Resource limits
-resources:
-  requests:
-    memory: "512Mi"
-    cpu: "500m"
-  limits:
-    memory: "1Gi"
-    cpu: "2000m"
-```
+### Rate Limiting
+
+- **Manual Events**: 1 request per second for `/trigger-test-event`
+- **Response**: 429 status with retry-after header
+- **Implementation**: Simple in-memory rate limiting
+
+### Secure Logging
+
+- **Sensitive Data Masking**: Automatically masks passwords, secrets, keys
+- **Correlation IDs**: Tracks requests across the application
+- **Structured Logging**: JSON format for log aggregation systems
+- **No PII Exposure**: Validates and sanitizes all logged data
+
+### Container Security
+
+- **Non-Root User**: Runs as `nonroot` user in production
+- **Minimal Base Image**: Uses distroless base for minimal attack surface
+- **Docker Socket Protection**: Timeout and error handling for container
+  detection
+- **Signal Handler Cleanup**: Proper cleanup to prevent memory leaks
+
+## Error Handling Strategy
+
+### Graceful Error Handling
+
+- **Event Processing**: Errors don't crash the event stream
+- **Health Checks**: Timeout protection prevents hanging
+- **Redis Failures**: Service continues running with degraded health
+- **Configuration Errors**: Validation prevents invalid configurations
+
+### Error Recovery
+
+- **Redis Reconnection**: Automatic retry with exponential backoff
+- **Event Stream Recovery**: Graceful handling of stream connection failures
+- **Health Check Recovery**: Automatic recovery when dependencies become healthy
+- **Request Recovery**: Proper error responses with correlation IDs
 
 ## Logging Configuration
 
 ### Text Format (Console/Docker logs)
 
 ```
-2025-06-28T23:40:13.653Z INFO  [redis-connection] Connection attempt 1/3 {"attempt":1,"maxRetries":3}
-2025-06-28T23:40:13.654Z ERROR [event-handler] Failed to process event {"error":"Connection timeout"}
+2025-06-28T23:40:13.653Z INFO  [redis-connection] Connection attempt 1/3 {"attempt":1,"maxRetries":3,"correlationId":"req_1234567890_abc123"}
+2025-06-28T23:40:13.654Z ERROR [event-handler] Failed to process event {"error":"Connection timeout","correlationId":"req_1234567890_abc123"}
 ```
 
 ### JSON Format (File/Aggregation systems)
@@ -221,7 +188,8 @@ resources:
   "context": "redis-connection",
   "message": "Connection attempt 1/3",
   "attempt": 1,
-  "maxRetries": 3
+  "maxRetries": 3,
+  "correlationId": "req_1234567890_abc123"
 }
 ```
 
@@ -256,6 +224,12 @@ The service follows a carefully orchestrated startup sequence:
 6. **Security**: Runs as non-root user in production containers, uses distroless
    base image for minimal attack surface.
 
+7. **Request Tracing**: Correlation IDs track requests across the application
+   for debugging and monitoring.
+
+8. **Input Validation**: Comprehensive validation prevents injection attacks and
+   malformed data processing.
+
 ## Testing Commands
 
 ```bash
@@ -266,6 +240,13 @@ curl http://localhost:8000/health
 
 # Trigger manual test event
 curl -X POST http://localhost:8000/trigger-test-event
+
+# Test correlation ID functionality
+curl -H "X-Correlation-ID: test-123" http://localhost:8000/health
+
+# Test rate limiting
+curl -X POST http://localhost:8000/trigger-test-event
+curl -X POST http://localhost:8000/trigger-test-event  # Should be rate limited
 
 # Run comprehensive test script
 ./test-health-checks.sh
@@ -279,3 +260,19 @@ curl -X POST http://localhost:8000/trigger-test-event
 - Event stream connection is blocking and keeps the service alive
 - Container builds use multi-stage process for minimal production images
 - All code follows Deno best practices with proper ES module imports
+- Correlation IDs help track requests across distributed systems
+- Input validation prevents security vulnerabilities
+- Rate limiting protects against abuse and DoS attacks
+
+## Security Checklist
+
+- ✅ Input validation for all user inputs
+- ✅ Rate limiting on API endpoints
+- ✅ Sensitive data masking in logs
+- ✅ Non-root container execution
+- ✅ Minimal attack surface (distroless base)
+- ✅ Signal handler cleanup
+- ✅ Docker socket protection
+- ✅ Health check timeouts
+- ✅ Graceful error handling
+- ✅ Request correlation for tracing

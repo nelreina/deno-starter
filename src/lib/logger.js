@@ -20,14 +20,20 @@ const LEVEL_COLORS = {
 const RESET_COLOR = "\x1b[0m";
 
 class Logger {
-  constructor(context = "app") {
+  constructor(context = "app", correlationId = null) {
     this.context = context;
+    this.correlationId = correlationId;
   }
 
   #formatMessage(level, message, metadata = {}) {
     const timestamp = new Date().toISOString();
     const serviceName = Deno.env.get("SERVICE_NAME") || "no-name-provided";
     const environment = Deno.env.get("ENVIRONMENT") || "development";
+
+    // Add correlation ID to metadata if available
+    const enrichedMetadata = this.correlationId
+      ? { correlationId: this.correlationId, ...metadata }
+      : metadata;
 
     // JSON format for file logging or when explicitly requested
     if (LOG_FORMAT === "json") {
@@ -38,7 +44,7 @@ class Logger {
         environment,
         context: this.context,
         message,
-        ...metadata,
+        ...enrichedMetadata,
       });
     }
 
@@ -48,9 +54,9 @@ class Logger {
 
     // Build metadata string if there are any metadata fields
     let metaStr = "";
-    if (Object.keys(metadata).length > 0) {
+    if (Object.keys(enrichedMetadata).length > 0) {
       // Filter out error objects for cleaner display
-      const displayMeta = { ...metadata };
+      const displayMeta = { ...enrichedMetadata };
       if (displayMeta.error) {
         displayMeta.error = displayMeta.error.message || displayMeta.error;
       }
@@ -93,7 +99,17 @@ class Logger {
   }
 
   child(context) {
-    return new Logger(`${this.context}.${context}`);
+    return new Logger(`${this.context}.${context}`, this.correlationId);
+  }
+
+  // Create a new logger instance with correlation ID
+  withCorrelationId(correlationId) {
+    return new Logger(this.context, correlationId);
+  }
+
+  // Generate a new correlation ID
+  static generateCorrelationId() {
+    return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 }
 

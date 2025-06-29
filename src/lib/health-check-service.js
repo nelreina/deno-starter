@@ -2,6 +2,9 @@ import { logger } from "./logger.js";
 
 const log = logger.child("health-check");
 
+// Health check timeout (3 seconds)
+const HEALTH_CHECK_TIMEOUT_MS = 3000;
+
 export class HealthCheckService {
   constructor(dependencies = {}) {
     this.startTime = Date.now();
@@ -64,25 +67,33 @@ export class HealthCheckService {
   async #performChecks() {
     const checks = {};
 
-    // Check Redis connection
+    // Check Redis connection with timeout
     if (this.dependencies.redisConnectionManager) {
       try {
-        const redisHealth = await this.dependencies.redisConnectionManager
-          .checkConnection();
+        const redisHealth = await this.#withTimeout(
+          this.dependencies.redisConnectionManager.checkConnection(),
+          HEALTH_CHECK_TIMEOUT_MS,
+          "Redis health check timeout",
+        );
         checks.redis = redisHealth;
       } catch (error) {
         log.error("Failed to check Redis health", error);
         checks.redis = {
           status: "unhealthy",
           error: error.message,
+          timeout: error.message.includes("timeout"),
         };
       }
     }
 
-    // Check event stream consumer
+    // Check event stream consumer with timeout
     if (this.dependencies.eventStreamStatus) {
       try {
-        const streamStatus = await this.dependencies.eventStreamStatus();
+        const streamStatus = await this.#withTimeout(
+          Promise.resolve(this.dependencies.eventStreamStatus()),
+          HEALTH_CHECK_TIMEOUT_MS,
+          "Event stream health check timeout",
+        );
         checks.eventStream = {
           status: streamStatus.active ? "healthy" : "unhealthy",
           consumerActive: streamStatus.active,
@@ -94,6 +105,7 @@ export class HealthCheckService {
           status: "unhealthy",
           error: error.message,
           consumerActive: false,
+          timeout: error.message.includes("timeout"),
         };
       }
     }
@@ -111,6 +123,15 @@ export class HealthCheckService {
     } else {
       return "degraded";
     }
+  }
+
+  // Helper method to add timeout to promises
+  #withTimeout(promise, timeoutMs, timeoutMessage) {
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error(timeoutMessage)), timeoutMs);
+    });
+
+    return Promise.race([promise, timeoutPromise]);
   }
 
   // Register health check routes with Hono app
@@ -158,6 +179,7 @@ export class HealthCheckService {
 
     log.info("Health check endpoints registered", {
       endpoints: ["/health/live", "/health/ready", "/health", "/health-check"],
+      timeout: `${HEALTH_CHECK_TIMEOUT_MS}ms`,
     });
   }
 }
