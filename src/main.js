@@ -7,6 +7,7 @@ import schedule from "node-schedule";
 import Logger, { logger } from "./lib/logger.js";
 import { RedisConnectionManager } from "./lib/redis-connection-manager.js";
 import { HealthCheckService } from "./lib/health-check-service.js";
+import { showBanner } from "./lib/banner.js";
 
 const log = logger.child("main");
 const config = appConfig.get();
@@ -224,6 +225,13 @@ const wrappedEventHandler = (message) => {
 
 // Main application startup
 async function startApplication() {
+  // Display service banner first
+  showBanner(
+    config.service.name,
+    config.service.version,
+    config.service.environment
+  );
+
   log.info("Starting application", {
     service: config.service.name,
     version: config.service.version,
@@ -234,27 +242,27 @@ async function startApplication() {
     // Connect to Redis with retry logic
     await redisConnectionManager.connect();
 
-    // Schedule periodic test events
-    globalThis.scheduledJob = schedule.scheduleJob("*/10 * * * * *", () => {
-      if (!isShuttingDown) {
-        log.info("📤 Publishing scheduled test event to stream", {
-          stream: config.stream.name,
-          eventType: "test_starters",
-          aggregateId: "abc123",
-        });
-        try {
-          redis.publishToStream(config.stream.name, "test_starters", "abc123", {
-            message: "Message from Deno",
-            timestamp: new Date().toISOString(),
-          });
-          log.info("✅ Test event published successfully");
-        } catch (error) {
-          log.error("❌ Failed to publish test event", error);
-        }
-      } else {
-        log.debug("Skipping test event publication - service is shutting down");
-      }
-    });
+    // // Schedule periodic test events
+    // globalThis.scheduledJob = schedule.scheduleJob("*/10 * * * * *", () => {
+    //   if (!isShuttingDown) {
+    //     log.info("📤 Publishing scheduled test event to stream", {
+    //       stream: config.stream.name,
+    //       eventType: "test_starters",
+    //       aggregateId: "abc123",
+    //     });
+    //     try {
+    //       redis.publishToStream(config.stream.name, "test_starters", "abc123", {
+    //         message: "Message from Deno",
+    //         timestamp: new Date().toISOString(),
+    //       });
+    //       log.info("✅ Test event published successfully");
+    //     } catch (error) {
+    //       log.error("❌ Failed to publish test event", error);
+    //     }
+    //   } else {
+    //     log.debug("Skipping test event publication - service is shutting down");
+    //   }
+    // });
 
     if (globalThis.scheduledJob) {
       log.info("Scheduled job created for test events", {

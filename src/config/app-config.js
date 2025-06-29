@@ -150,8 +150,15 @@ export class AppConfig {
     }
 
     // Validate stream name
-    if (config.stream.name && !/^[a-zA-Z0-9._-]+$/.test(config.stream.name)) {
-      throw new Error("Invalid stream name: contains invalid characters");
+    if (config.stream.name) {
+      log.debug("Validating stream name", { 
+        streamName: config.stream.name,
+        isValid: /^[a-zA-Z0-9._:-]+$/.test(config.stream.name)
+      });
+      
+      if (!/^[a-zA-Z0-9._:-]+$/.test(config.stream.name)) {
+        throw new Error(`Invalid stream name: "${config.stream.name}" contains invalid characters. Only alphanumeric, dots, underscores, hyphens, and colons are allowed.`);
+      }
     }
   }
 
